@@ -1,0 +1,8 @@
+librosa
+matplotlib
+networkx
+numpy
+scipy
+seaborn
+torch
+tqdm
