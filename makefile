@@ -1,6 +1,6 @@
 
 all: __main__.py extractor.py features.py model.pt
-	echo '#!/usr/bin/env python -O' > sdi
+	echo '#!/usr/bin/env python' > sdi
 	zip sdi.zip __main__.py extractor.py features.py model.pt
 	cat sdi.zip >> sdi
 	rm sdi.zip

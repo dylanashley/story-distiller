@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -O
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from extractor import LSTMAudioFeatureEncoder
@@ -19,7 +19,7 @@ import torch
 import warnings
 import zipfile
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 def parse_args(args: List[str] = sys.argv[1:]) -> Dict[str, Any]:
