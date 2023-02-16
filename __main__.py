@@ -19,7 +19,7 @@ import torch
 import warnings
 import zipfile
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 def parse_args(args: List[str] = sys.argv[1:]) -> Dict[str, Any]:
@@ -185,7 +185,7 @@ def fit_values(
     for i, y in enumerate(values.values()):
         for j in range(len(values)):
             x = scale(j, 0, len(values), 0, 1)
-            distances[i, j] = abs(y - template(x))
+            distances[i, j] = np.square(y - template(x))
 
     # binary search to find smallest deviation matching
     candidates = np.sort(distances.flatten())
@@ -209,7 +209,7 @@ def fit_values(
         except nx.AmbiguousSolution:
             min_idx = pivot + 1
 
-    # clean up smallest deviation matching
+    # now minimize the average devation as well
     edges = [
         (filenames[i], j, {"weight": distances[i, j]})
         for i in range(len(values))
