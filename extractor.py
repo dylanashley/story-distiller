@@ -239,7 +239,6 @@ class AudioFeatureDatasetEchonest(AudioFeatureDataset):
         normalize_features=True,
         include_learned_feature=False,
     ):
-
         super().__init__(
             mode=mode,
             allow_albums_with_missing_tracks=allow_albums_with_missing_tracks,
