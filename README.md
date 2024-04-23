@@ -22,9 +22,13 @@ sudo make install
 
 To run the program, execute it while passing the audio files as command-line arguments:
 ```bash
-sdi files [files ...] >> playlist.txt
+sdistil files [files ...] >> playlist.txt
 ```
 
 If you want to try out a different template, pass the `-t` argument to the program with the template file as an argument. Several learned templates are included in the templates directory:
 
 ![templates.jpg](https://github.com/dylanashley/story-distiller/blob/main/templates.jpg?raw=true)
+
+## Extras
+
+In addition to the above, you can find an implementation of the story template learning system described in *On Narrative Information and the Distillation of Stories* [here](https://github.com/dylanashley/story-template-extraction) and a script to learn the narrative essence extractor [here](https://github.com/vincentherrmann/narrative-essence).
