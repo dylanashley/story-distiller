@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# from fma
+# -*- coding: ascii -*-
 
 from scipy import stats
 import librosa
@@ -33,15 +31,11 @@ def columns():
     names = ("feature", "statistics", "number")
     columns = pd.MultiIndex.from_tuples(columns, names=names)
 
-    # More efficient to slice if indexes are sorted.
-    return columns.sort_values()
+    return columns.sort_values()  # more efficient to slice if indexes are sorted
 
 
 def compute_features(filepath):
-    features = pd.Series(index=columns(), dtype=np.float, name=filepath)
-
-    # Catch warnings as exceptions (audioread leaks file descriptors).
-    # warnings.filterwarnings('error', module='librosa')
+    features = pd.Series(index=columns(), dtype=np.float64, name=filepath)
 
     def feature_stats(name, values):
         features[name, "mean"] = np.mean(values, axis=1)
@@ -52,7 +46,6 @@ def compute_features(filepath):
         features[name, "min"] = np.min(values, axis=1)
         features[name, "max"] = np.max(values, axis=1)
 
-    # try:
     x, sr = librosa.load(filepath, sr=None, mono=True)  # kaiser_fast
 
     f = librosa.feature.zero_crossing_rate(x, frame_length=2048, hop_length=512)
@@ -98,10 +91,6 @@ def compute_features(filepath):
     del stft
     f = librosa.feature.mfcc(S=librosa.power_to_db(mel), n_mfcc=20)
     feature_stats("mfcc", f)
-
-    # except Exception as e:
-    #    print("Exception!!!")
-    #    print('{}: {}'.format(filepath, repr(e)))
 
     return features
 

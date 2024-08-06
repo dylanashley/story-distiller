@@ -1,7 +1,10 @@
+h5py
 librosa
 matplotlib
 networkx
 numpy
+pandas
+scikit-learn
 scipy
 seaborn
 torch

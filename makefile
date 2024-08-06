@@ -1,14 +1,14 @@
 
-all: __main__.py extractor.py features.py model.pt
-	echo '#!/usr/bin/env python' > sdi
-	zip sdi.zip __main__.py extractor.py features.py model.pt
-	cat sdi.zip >> sdi
-	rm sdi.zip
-	chmod +x sdi
+all: __main__.py album_extractor.py features.py album_feature_encoder.pt templates.npz
+	echo '#!/usr/bin/env python' > sdistil
+	zip -j sdistil.zip __main__.py album_extractor.py features.py album_feature_encoder.pt templates.npz
+	cat sdistil.zip >> sdistil
+	rm sdistil.zip
+	chmod +x sdistil
 
-clean: sdi
-	rm -f sdi
+clean: sdistil
+	rm -f sdistil
 
-install: sdi
+install: sdistil
 	mkdir -p /usr/local/bin/
-	cp sdi /usr/local/bin/
+	cp sdistil /usr/local/bin/
