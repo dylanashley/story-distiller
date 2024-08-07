@@ -46,7 +46,7 @@ If you want to try out a different template, pass the `-t` argument to the progr
 ## Extras
 
 In addition to the above, this repository also includes all the code needed to reproduce the results presented in *On the Distillation of Stories for Transferring Narrative Arcs in Collections of Independent Media* by Dylan R. Ashley, Vincent Herrmann, Zachary Friggstad, and Jürgen Schmidhuber. In particular, it includes
-- the scripts needed to learn the PyTorch models for extracting the narrative essence from either music albums (`album_extractor.py`) or movie frames (`movie_extractor.py`),
+- the scripts needed to learn the PyTorch models for extracting the narrative essence from either music albums (`album_extractor.py`) or movie frames (`movie_extractor.py`) and compute the lower bounds for the mutual information of the different features,
 - the scripts for learning a set of template curves from scalar descriptions of items in a set of collections (`template_learner.py`),
 - the code that can fit the scalar descriptions of items in a collection to a given template curve (`fit_values` in `__main__.py`),
 - the preprocessed album data used to train the original PyTorch models for the music albums (`data/`), and
