@@ -1,140 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: ascii -*-
 
-from album_extractor import LSTMAudioFeatureEncoder, Mean
-from copy import copy
-from features import compute_features, get_duration
-from tqdm import tqdm
-from typing import Any, Callable, Dict, List, Tuple
 import argparse
-import collections
+from copy import copy
 import matplotlib.pyplot as plt
-import networkx as nx
 import numpy as np
 import os
-import scipy.interpolate
 import seaborn as sns
 import sys
 import tempfile
 import torch
+from tqdm import tqdm
+from typing import Any
+from utils import build_template, default_template, fit_values, get_value, scale
 import warnings
 import zipfile
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 
 
-def build_template(xy: List[Tuple[float, float]]) -> Callable[[float], float]:
-    """Returns a callable narrative template curve."""
-    x, y = zip(*xy)
-    min_y = min(y)
-    max_y = max(y)
-    y = list(y)
-    if min_y != max_y:
-        for i in range(len(y)):
-            y[i] = scale(y[i], min_y, max_y, 0, 1)
-    if len(x) == 1:
-        kind = "nearest"
-    elif len(x) == 2:
-        kind = "linear"
-    elif len(x) == 3:
-        kind = "quadratic"
-    else:
-        kind = "cubic"
-    return scipy.interpolate.interp1d(x, y, kind=kind)
-
-
-def default_template(time: float, order: int = 2) -> float:
-    """Returns the value of a narrative template curve for a time in the
-    range [0, 1].
-    """
-    assert 0 <= time <= 1
-    assert order in [1, 2]
-    if order == 1:
-        if time <= 0.2:
-            return 1 / 2 + 5 / 4 * time
-        elif time <= 0.5:
-            return 5 / 4 - 5 / 2 * time
-        elif time <= 0.8:
-            return -5 / 3 + 10 / 3 * time
-        else:
-            return 2 - 5 / 4 * time
-    else:
-        if time <= 0.2:
-            return 1 / 2 + 5 / 2 * time - 25 / 4 * time**2
-        elif time <= 0.3:
-            return -1 / 4 + 10 * time - 25 * time**2
-        elif time <= 0.5:
-            return 25 / 8 - 25 / 2 * time + 25 / 2 * time**2
-        elif time <= 0.65:
-            return 50 / 9 - 200 / 9 * time + 200 / 9 * time**2
-        elif time <= 0.8:
-            return -119 / 9 + 320 / 9 * time - 200 / 9 * time**2
-        else:
-            return -3 + 10 * time - 25 / 4 * time**2
-
-
-def fit_values(
-    values: Dict[str, float],
-    template: Callable[[float], float] = default_template,
-) -> List[str]:
-    """Fits a set of values to a narrative template curve."""
-    values = collections.OrderedDict(values)
-    filenames = list(values.keys())
-    rv = [-1 for _ in range(len(values))]
-    distances = np.zeros((len(values), len(values)), dtype=float)
-    for i, y in enumerate(values.values()):
-        for j in range(len(values)):
-            x = scale(j, 0, len(values), 0, 1)
-            distances[i, j] = np.square(y - template(x))
-
-    # binary search to find smallest deviation matching
-    candidates = np.sort(distances.flatten())
-    min_idx = 0
-    max_idx = len(candidates) - 1
-    while min_idx != max_idx:
-        pivot = min_idx + (max_idx - min_idx) // 2
-        edges = [
-            (filenames[i], j)
-            for i in range(len(values))
-            for j in range(len(values))
-            if distances[i, j] <= candidates[pivot]
-        ]
-        graph = nx.Graph(edges)
-        try:
-            matching = nx.bipartite.maximum_matching(graph)
-            if all([filename in matching for filename in filenames]):
-                max_idx = pivot
-            else:
-                min_idx = pivot + 1
-        except nx.AmbiguousSolution:
-            min_idx = pivot + 1
-
-    # now minimize the average devation as well
-    edges = [
-        (filenames[i], j, {"weight": distances[i, j]})
-        for i in range(len(values))
-        for j in range(len(values))
-        if distances[i, j] <= candidates[max_idx]
-    ]
-    graph = nx.Graph(edges)
-    matching = nx.bipartite.minimum_weight_full_matching(graph)
-    return [matching[i] for i in range(len(filenames))]
-
-
-def get_value(filename: str, encoder: torch.nn.Module) -> float:
-    """Returns the narrative essence for an audio file."""
-    a = torch.from_numpy(compute_features(filename).to_numpy()).float()
-    durations_mean = 257.6875
-    durations_std = 191.8393
-    duration = get_duration(filename)
-    duration = (duration - 257.6875) / 191.8393
-    duration = torch.FloatTensor([duration])
-    features = torch.cat([a, duration.repeat(7)]).unsqueeze(0)
-    value = encoder(features)
-    return value.item()
-
-
-def main(args: Dict[str, Any]) -> None:
+def main(args: dict[str, Any]) -> None:
     if len(args["files"]) == 1:
         print(args["files"][0])
         return
@@ -165,7 +50,7 @@ def main(args: Dict[str, Any]) -> None:
     max_value = max(values.values())
     for k, v in values.items():
         values[k] = scale(v, min_value, max_value, 0, 1)
-    playlist = fit_values(values, template=template)
+    playlist, _ = fit_values(values, template=template)
     if args["outfile"]:
         with open(args["outfile"], "w") as outfile:
             for song in playlist:
@@ -192,7 +77,7 @@ def main(args: Dict[str, Any]) -> None:
     plt.show()
 
 
-def parse_args(args: List[str] = sys.argv[1:]) -> Dict[str, Any]:
+def parse_args(args: list[str] = sys.argv[1:]) -> dict[str, Any]:
     """Parses command line arguments."""
     parser = argparse.ArgumentParser(
         description="embeds a story into a music playlist by sorting "
@@ -261,15 +146,6 @@ def parse_args(args: List[str] = sys.argv[1:]) -> Dict[str, Any]:
                 'instead got "{}"'.format(original)
             )
     return args
-
-
-def scale(
-    value: float, start_min: float, start_max: float, end_min: float, end_max: float
-) -> float:
-    """Returns the result of scaling value from the range
-    [start_min, start_max] to [end_min, end_max].
-    """
-    return end_min + (end_max - end_min) * (value - start_min) / (start_max - start_min)
 
 
 if __name__ == "__main__":

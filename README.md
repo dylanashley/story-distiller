@@ -28,7 +28,7 @@ sudo make install
 ```
 
 
-## Usage
+## Command-line Tool Usage
 
 To run the program, execute it while passing the audio files as command-line arguments:
 ```bash
@@ -40,6 +40,14 @@ sdistil files [files ...] >> playlist.txt
 If you want to try out a different template, pass the `-t` argument to the program with the template file as an argument. Several learned templates are included in the templates directory:
 
 ![templates.jpg](https://github.com/dylanashley/story-distiller/blob/main/templates.jpg?raw=true)
+
+
+## Web App Usage
+
+To run the web app, simply execute the `app.py` file:
+```bash
+./app.py
+```
 
 
 ## Extras

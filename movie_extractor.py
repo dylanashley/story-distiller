@@ -2,10 +2,10 @@
 # -*- coding: ascii -*-
 
 from album_extractor import Mean, OrderingLSTMEncoder, seed_everything
-from pathlib import Path
 import argparse
 import h5py
 import numpy as np
+from pathlib import Path
 import torch
 
 

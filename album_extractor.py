@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: ascii -*-
 
-from pathlib import Path
-from sklearn.decomposition import PCA
-from types import SimpleNamespace
 import json
 import lzma
 import numpy as np
 import os
+from pathlib import Path
 import pickle
 import random
+from sklearn.decomposition import PCA
 import torch
+from types import SimpleNamespace
 import urllib
 
 

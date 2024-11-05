@@ -1,9 +1,9 @@
 # -*- coding: ascii -*-
 
-from scipy import stats
 import librosa
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 
 def columns():
